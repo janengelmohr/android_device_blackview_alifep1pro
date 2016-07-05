@@ -97,31 +97,31 @@ PRODUCT_COPY_FILES += \
 	external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml:system/etc/permissions/com.dsi.ant.antradio_library.xml
 
 # Wifi
-PRODUCT_PACKAGES += \
-    	lib_driver_cmd_mt66xx \
-    	libwifi-hal-mt66xx \
-    	wifi_hal \
-    	libwpa_client \
-    	hostapd \
-    	hostapd_cli \
-    	dhcpcd.conf \
-    	wpa_supplicant \
-    	wpa_supplicant.conf \
-	libnl_2
+#PRODUCT_PACKAGES += \
+#    	lib_driver_cmd_mt66xx \
+#    	libwifi-hal-mt66xx \
+#    	wifi_hal \
+#    	libwpa_client \
+#    	hostapd \
+#    	hostapd_cli \
+#    	dhcpcd.conf \
+#    	wpa_supplicant \
+#    	wpa_supplicant.conf \
+#	libnl_2
    	
 # Audio
-PRODUCT_PACKAGES += \
-    	audio.a2dp.default \
-    	audio_policy.default \
-    	audio_policy.stub \
-    	audio.r_submix.default \
-    	audio.usb.default \
-    	libaudio-resampler \
-    	tinymix \
-    	libtinyalsa \
-    	libtinycompress \
-    	librs_jni \
-	libtinyxml
+#PRODUCT_PACKAGES += \
+#    	audio.a2dp.default \
+#    	audio_policy.default \
+#    	audio_policy.stub \
+#    	audio.r_submix.default \
+#    	audio.usb.default \
+#    	libaudio-resampler \
+#    	tinymix \
+#    	libtinyalsa \
+#    	libtinycompress \
+#    	librs_jni \
+#	libtinyxml
 
 # Audio profiles used to address the correct audio devices for headset, etc.
 PRODUCT_COPY_FILES += \
