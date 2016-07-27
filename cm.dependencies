@@ -1,0 +1,13 @@
+[
+  {
+    "repository": "android_packages_apps_Snap",
+    "target_path": "packages/apps/Snap",
+    "branch": "cm-12.1"
+  },
+  {
+    "remote": "visi0nary"
+    "repository": "android_vendor_blackview_alifep1pro",
+    "target_path": "vendor/blackview/alifep1pro",
+    "branch": "master"
+  }
+]
