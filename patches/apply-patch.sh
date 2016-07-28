@@ -12,12 +12,9 @@ git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0002-locat
 git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0003-location-style-fix.patch
 git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0004_minimal_xlog_frameworks_base.patch
 git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0005-Update-for-mtk.patch
-git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0001-fingerprint_frameworks_base.patch
-git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0002-fingerprint_frameworks_base.patch
 git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0001_engineering_mode_audio_settings_frameworks_base.patch
 cd ../..
 cd packages/apps/Settings/
-git apply -v ../../../device/blackview/alifep1pro/patches/packages_apps_Settings/0001-fingerprint_packages_apps_settings.patch
 git apply -v ../../../device/blackview/alifep1pro/patches/packages_apps_Settings/0001-multisim.patch
 cd ../../..
 cd frameworks/opt/telephony
