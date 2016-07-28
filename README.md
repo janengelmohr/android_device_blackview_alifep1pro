@@ -2,7 +2,7 @@
 Device repository for Blackview Alife P1 Pro CM12.1
 
 Currently broken features:
- * Smart Cover
+ * Everything except bootanimation. This includes ADB
 
 ## Thanks to:
  * DerTeufel1980
