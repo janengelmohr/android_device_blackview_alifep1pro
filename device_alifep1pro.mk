@@ -14,6 +14,7 @@ PRODUCT_AAPT_CONFIG := normal xhdpi xxhdpi
 PRODUCT_AAPT_PREF_CONFIG := xxhdpi
 
 # Recovery allowed devices
+TARGET_OTA_ASSERT_DEVICE := alifep1pro,x5602,X5602
 
 # init.rc's
 PRODUCT_COPY_FILES += \
