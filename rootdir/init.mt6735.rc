@@ -5,6 +5,12 @@ import init.project.rc
 import init.xlog.rc
 import init.ssd.rc
 import init.modem.rc
+import init.no_ssd.rc
+import init.ssd_nomuser.rc
+import init.fon.rc
+import init.volte.rc
+import init.epdg.rc
+import init.trustonic.rc
 
 
 on init
@@ -46,7 +52,18 @@ on init
     chown root system /proc/lk_env
     chmod 0660 /proc/lk_env
 
+#add by chenxuanyu 20150605 start
+	chmod 0666 /sys/class/main_flashlight/main_flashlight/main_flashlight_enable
+	chown system system /sys/class/main_flashlight/main_flashlight/main_flashlight_enable
+#add by chenxuanyu 20150605 end
+#add chenxuanyu 
+#	chmod 0666 /sys/class/timed_output/vibrator/enable
+#	chown system system /sys/class/timed_output/vibrator/enable
 # mount different fs start
+
+#/sys/class/syna/gesenable    TouchPanel -gesture_wakeup
+	chmod 0664 /sys/class/syna/gesenable
+	chown system system /sys/class/syna/gesenable
 
 on charger
     mount ext4 /dev/block/platform/mtk-msdc.0/by-name/system /system ro wait
@@ -122,12 +139,6 @@ on post-fs
 on post-fs-data
     chown system system /persist
     chmod 0771 /persist
-
-# @2015 silead    
-    mkdir /data/local 0777 root root 
-    mkdir /data/local/tmp 0777 shell shell
-# @2015 silead 
-
 
     # create basic filesystem structure
     # mkdir /data/nvram 2770 root system
@@ -507,6 +518,8 @@ on post-fs-data
     chmod 0666 /dev/kd_camera_flashlight
     chmod 0666 /dev/kd_camera_hw_bus2
     chmod 0666 /dev/FM50AF
+	chmod 0666 /dev/WV511AAF
+	chmod 0666 /dev/DW9714AF
     chmod 0666 /dev/CAM_CAL_DRV
 
     chown system camera /dev/camera-sysram
@@ -517,6 +530,8 @@ on post-fs-data
     chown system camera /dev/kd_camera_flashlight
     chown system camera /dev/kd_camera_hw_bus2
     chown system camera /dev/FM50AF
+	chown system camera /dev/WV511AAF
+	chown system camera /dev/DW9714AF
     chown system camera /dev/CAM_CAL_DRV
 
     #MATV
@@ -613,11 +628,6 @@ on boot
 
     # xlog
     start xlogboot
-
-# @2015 silead    
-    chmod 0666 /dev/silead_fp_dev
-    chmod 0755 /system/bin/fpsvcd
-# @2015 silead    
 
     write /proc/sys/vm/dirty_writeback_centisecs 300
     chmod 0660 /sys/power/autosleep
@@ -731,12 +741,6 @@ on property:vold.decrypt=trigger_shutdown_framework
     start stop_modem
     start swapoff_action
     write /proc/bootprof "trigger_shutdown_framework"
-
-# @ 2015 silead
-service fpsvcd /system/bin/fpsvcd 
-   class main
-   user root   
-# @ 2015 silead   
 
 service stop_modem /system/bin/md_ctrl 0
     class main
@@ -1186,3 +1190,16 @@ setprop rild.mark_switchuser 0
 chown root /system/bin/pppd
 chmod 4755 /system/bin/pppd
 
+# xuanyu add for FP start 20150313 class late_start
+service fpdaemon /system/bin/gxFpDaemon
+    class late_start
+    user system
+    group system
+    disabled
+
+on property:persist.sys.rengek.fpdaemon=1
+   start fpdaemon
+
+on property:persist.sys.rengek.fpdaemon=0
+   stop fpdaemon
+# xuanyu add for FP end 20150313
