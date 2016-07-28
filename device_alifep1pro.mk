@@ -19,7 +19,7 @@ TARGET_OTA_ASSERT_DEVICE := alifep1pro,x5602,X5602
 # init.rc's
 PRODUCT_COPY_FILES += \
 	device/blackview/alifep1pro/rootdir/init.mt6735.rc:root/init.mt6735.rc \
-	device/blackview/alifep1pro/rootdir/init.ssd.rc:root/init.ssd.rc \
+	device/blackview/alifep1pro/rootdir/init.ssd_nomuser.rc:root/init.ssd_nomuser.rc \
 	device/blackview/alifep1pro/rootdir/init.xlog.rc:root/init.xlog.rc \
 	device/blackview/alifep1pro/rootdir/init.rc:root/init.rc \
 	device/blackview/alifep1pro/rootdir/init.mt6735.usb.rc:root/init.mt6735.usb.rc \
