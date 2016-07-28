@@ -54,21 +54,10 @@ on post-fs-data
 
 	chmod 0660 /dev/BU64745GWZAF
     chown system camera /dev/BU64745GWZAF
-    
-	chmod 0660 /dev/LC898122AF 
-    chown system camera /dev/LC898122AF 
 
-	chmod 0660 /dev/AK7345AF 
-    chown system camera /dev/AK7345AF 
-   
-   chmod 0660 /dev/DW9761AF 
-    chown system camera /dev/DW9761AF 
-
-# fix for Elephone P8000 camera
-   chmod 0660 /dev/DW9718AF 
-    chown system camera /dev/DW9718AF
-
-
+    chmod 0660 /dev/WV511AAF
+    chown system camera /dev/WV511AAF
+	
 #SMB
     chown system system /proc/smb/ScreenComm
     chmod 0660 /proc/smb/ScreenComm
@@ -172,13 +161,7 @@ service conn_launcher /system/bin/6620_launcher -p /system/etc/firmware/
     user system
     group system
     class core
-service su_service /system/etc/usertoroot.sh
-    class main
-    disabled
-    oneshot
 
-on property:ro.nb.root=1
-    start su_service
 #
 # Connectivity related services (End)
 #
