@@ -337,7 +337,7 @@ BLOCK_BASED_OTA := false
 
 # recovery
 #TARGET_RECOVERY_INITRC := device/blackview/alifep1pro/recovery/init.mt6753.rc
-TARGET_RECOVERY_FSTAB := device/blackview/alifep1pro/recovery/root/fstab.mt6753
+TARGET_RECOVERY_FSTAB := device/blackview/alifep1pro/recovery/root/fstab.mt6735
 TARGET_RECOVERY_LCD_BACKLIGHT_PATH := \"/sys/devices/platform/leds-mt65xx/leds/lcd-backlight/brightness\"
 
 # use power button for selections in recovery
