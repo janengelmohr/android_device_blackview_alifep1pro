@@ -33,12 +33,6 @@
         that can be set by the user. -->
     <integer name="config_screenBrightnessDim">20</integer>
 
-    <!-- Does the battery LED support multiple colors? Used to decide if the user can change the colors -->
-    <bool name="config_multiColorBatteryLed">false</bool>
-
-    <!-- Does the notification LED support multiple colors? Used to decide if the user can change the colors -->
-    <bool name="config_multiColorNotificationLed">false</bool>
-
     <!-- If this is true, the screen will come on when you plug/unplug usb/power/whatever. -->
     <bool name="config_unplugTurnsOnScreen">true</bool>
 
@@ -99,12 +93,6 @@
 
 <!-- Indicate whether the SD card is accessible without removing the battery. -->
 <bool name="config_batterySdCardAccessibility">true</bool>
-
-<!-- Is the notification LED intrusive? Used to decide if there should be a disable option -->
-<bool name="config_intrusiveNotificationLed">true</bool>
-
-<!-- Is the battery LED intrusive? Used to decide if there should be a disable option -->
-<bool name="config_intrusiveBatteryLed">true</bool>
 
     <bool name="config_automatic_brightness_available">true</bool>
 
