@@ -23,7 +23,6 @@ PRODUCT_COPY_FILES += \
 	device/blackview/alifep1pro/rootdir/init.xlog.rc:root/init.xlog.rc \
 	device/blackview/alifep1pro/rootdir/init.rc:root/init.rc \
 	device/blackview/alifep1pro/rootdir/init.mt6735.usb.rc:root/init.mt6735.usb.rc \
-	device/blackview/alifep1pro/rootdir/init.recovery.mt6735.rc:root/init.recovery.mt6735.rc \
 	device/blackview/alifep1pro/rootdir/init.project.rc:root/init.project.rc \
 	device/blackview/alifep1pro/rootdir/init.modem.rc:root/init.modem.rc \
 	device/blackview/alifep1pro/recovery/root/fstab.mt6753:root/fstab.mt6735  \
