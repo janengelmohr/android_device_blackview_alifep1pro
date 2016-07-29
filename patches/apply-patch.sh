@@ -19,7 +19,7 @@ git apply -v ../../../device/blackview/alifep1pro/patches/packages_apps_Settings
 cd ../../..
 cd frameworks/opt/telephony
 git apply -v ../../../device/blackview/alifep1pro/patches/framework_opt_telephony/0001-Update-for-mtk.patch
-git apply -v ../../../device/blackview/alifep1pro/patches/framework_opt_telephony/0002_mobile_data_patch_mt6753.patch
+#git apply -v ../../../device/blackview/alifep1pro/patches/framework_opt_telephony/0002_mobile_data_patch_mt6753.patch
 cd ../../..
 cd hardware/libhardware
 git apply -v ../../device/blackview/alifep1pro/patches/hardware_libhardware/fix-gps-light-audio.patch
