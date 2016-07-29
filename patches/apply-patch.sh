@@ -31,9 +31,9 @@ cd ../..
 cd packages/services/Telephony
 git apply -v ../../../device/blackview/alifep1pro/patches/packages_services_telephony/NeedsFakeIccid.patch
 cd ../../..
-#cd system/core
-#git apply -v ../../device/blackview/alifep1pro/patches/system_core/fix-boot-for-mtk.patch
-#cd ../..
+cd system/core
+git apply -v ../../device/blackview/alifep1pro/patches/system_core/prevent-MTK-audio-and-other-MTK-libs-from-spamming-log.patch
+cd ../..
 cd system/netd
 git apply -v ../../device/blackview/alifep1pro/patches/system_netd/hotpost-fix.patch
 cd ../..
