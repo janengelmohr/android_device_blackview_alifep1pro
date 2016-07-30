@@ -83,7 +83,7 @@ public class FingerprintManager
 		}catch(InvocationTargetException exc){
 		Log.v("fpservice", "InvocationTargetException");
 		}
-            e.printStackTrace();
+            exception.printStackTrace();
         }
         return 0;
     }
