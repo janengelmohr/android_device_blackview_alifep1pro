@@ -27,8 +27,8 @@ $(shell cp -a $(LOCAL_PATH)/lib/* $(PRODUCT_OUT)/system/lib/)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
-LOCAL_SRC_FILES := $(call all-subdir-java-files, src) $(call all-Iaidl-files-under, aidl)
-LOCAL_AIDL_INCLUDES := $(call all-Iaidl-files-under, aidl)
+LOCAL_SRC_FILES := $(call all-subdir-java-files, src) $(call all-Iaidl-files-under, src)
+LOCAL_AIDL_INCLUDES := $(call all-Iaidl-files-under, src)
 LOCAL_PACKAGE_NAME := GoodixNewFpSetting
 #LOCAL_JNI_SHARED_LIBRARIES := libFp
 LOCAL_PROGUARD_ENABLED := disabled
