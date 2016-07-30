@@ -1,6 +1,6 @@
 #
 #
-# system.prop for P8000, thanks to jianminglok
+# system.prop for Alife P1 Pro
 #
 
 rild.libpath=/system/lib64/mtk-ril.so
@@ -70,6 +70,8 @@ persist.sys.timezone=Asia/Shanghai
 #A: DWLLL-34 daizhiyi 20141103 {
 persist.yulong.defaultmode=0
 #A: }
+# start FP daemon
+persist.sys.rengek.fpdaemon=1
 
 #add BUG_ID:JELY-2 daizhiyi 20130416 (start)
 carrier=3
