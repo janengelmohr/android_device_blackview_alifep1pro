@@ -25,6 +25,13 @@ $(shell cp -a $(LOCAL_PATH)/lib/* $(PRODUCT_OUT)/system/lib/)
 #$(shell cp -a $(LOCAL_PATH)/gxFpService/gxFpService.apk $(PRODUCT_OUT)/system/app/gxFpService/)
 #$(shell cp -a $(LOCAL_PATH)/gxFpService/lib/arm/libFp.so $(PRODUCT_OUT)/system/app/gxFpService/lib/arm/libFp.so)
 
+#add by hy for gxfp
+LOCAL_SRC_FILES += \
+	src/android/gxFP/IEnrollCallback.aidl \
+	src/android/gxFP/IFingerprintManager.aidl \
+	src/android/gxFP/IVerifyCallback.aidl 
+#add by hy end
+
 include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
 LOCAL_SRC_FILES := $(call all-subdir-java-files, src)
