@@ -87,7 +87,7 @@ PRODUCT_PACKAGES += \
 
 # Goodix Fingerprint
 PRODUCT_PACKAGES += \
-	GoodixNewFpSetting
+	GoodixFpService
 
 
 # ANT Permissions
