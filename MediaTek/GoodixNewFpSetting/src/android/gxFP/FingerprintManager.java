@@ -21,12 +21,11 @@ public class FingerprintManager
      */
     private static FingerprintManager FpManager;
     private IFingerprintManager mService;
-    private static Method getService;
 
 	public static FingerprintManager getFpManager() {
 		if(FpManager==null) {
 			try {
-			getService = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
+			Method getService = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
 			FpManager=new FingerprintManager(IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService")));
 			}catch(ClassNotFoundException ex){
 			Log.v("fpservice", "ClassNotFoundException");
@@ -60,9 +59,9 @@ public class FingerprintManager
         {
             return mService.query();
         }
-        catch (RemoteException exception)
-        {            
-	    e.printStackTrace();
+        catch (RemoteException e)
+        {
+            e.printStackTrace();
         }
         return 0;
     }
