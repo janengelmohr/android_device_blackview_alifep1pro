@@ -43,19 +43,7 @@ public class FingerprintManager
 
     public FingerprintManager(IFingerprintManager service)
     {
-	if(service!=null)
         mService = service;
-	else {
-	    try 
-            {
-	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
-	    } 
-	    catch(IllegalAccessException e){
-		Log.v("fpservice", "IllegalAccessException");
-	    }catch(InvocationTargetException e){
-		Log.v("fpservice", "InvocationTargetException");
-	    }
-	}
    //     mContext = context;
     }
     /*
@@ -73,17 +61,8 @@ public class FingerprintManager
             return mService.query();
         }
         catch (RemoteException exception)
-        {
-	    try 
-            {
-	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
-	    } 
-		catch(IllegalAccessException exc){
-		Log.v("fpservice", "IllegalAccessException");
-		}catch(InvocationTargetException exc){
-		Log.v("fpservice", "InvocationTargetException");
-		}
-            exception.printStackTrace();
+        {            
+	    e.printStackTrace();
         }
         return 0;
     }
