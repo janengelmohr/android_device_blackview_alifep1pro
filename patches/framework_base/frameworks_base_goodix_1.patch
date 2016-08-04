@@ -1,0 +1,1153 @@
+commit 0746e6bb47022a01d4987c9e392b444e42a140e0
+Author: Jan Engelmohr <jan.engelmohr@mailbox.tu-dresden.de>
+Date:   Mon Aug 1 19:55:36 2016 +0200
+
+    second attempt at fixing goodix FP
+    
+    Change-Id: I4bd5164b1a36d82e5c5c68b9ec92de4890414136
+
+diff --git a/Android.mk b/Android.mk
+index 91b2a99..03fbc99 100755
+--- a/Android.mk
++++ b/Android.mk
+@@ -413,6 +413,17 @@ LOCAL_SRC_FILES += \
+ 	packages/services/Proxy/com/android/net/IProxyCallback.aidl \
+ 	packages/services/Proxy/com/android/net/IProxyPortListener.aidl \
+         telephony/java/com/android/ims/internal/IImsConfig.aidl \
++        core/java/android/service/fingerprint/IFPEnrollCallback.aidl \
++        core/java/android/service/fingerprint/IFPFingerCallback.aidl \
++        core/java/android/service/fingerprint/IFPCaptureCallback.aidl \
++        core/java/android/service/fingerprint/IFPFingerService.aidl \
++
++
++#add goodix fingerprint
++LOCAL_SRC_FILES += \
++	core/java/android/gxFP/IEnrollCallback.aidl \
++	core/java/android/gxFP/IFingerprintManager.aidl \
++	core/java/android/gxFP/IVerifyCallback.aidl 
+ 
+ 
+ # FRAMEWORKS_BASE_JAVA_SRC_DIRS comes from build/core/pathmap.mk
+diff --git a/core/java/android/gxFP/FingerprintManager.java b/core/java/android/gxFP/FingerprintManager.java
+new file mode 100644
+index 0000000..f7985a8
+--- /dev/null
++++ b/core/java/android/gxFP/FingerprintManager.java
+@@ -0,0 +1,443 @@
++package android.gxFP;
++
++import android.os.Binder;
++import android.os.IBinder;
++import android.os.RemoteException;
++import android.util.Log;
++import android.gxFP.IEnrollCallback;
++import android.gxFP.IFingerprintManager;
++import android.gxFP.IVerifyCallback;
++import android.content.Context;
++import java.lang.reflect.Method;
++import java.lang.reflect.InvocationTargetException;
++import android.os.DeadObjectException;
++/**
++ * @hide
++ */
++public class FingerprintManager
++{
++    private static final String TAG = "FpSetting";
++  //  private Context mContext;
++    
++    /*
++     * @Fields mService : remote fingerprint manager service .
++     */
++    private IFingerprintManager mService;
++    private static Method getService;
++	public static FingerprintManager getFpManager() {
++		FingerprintManager FpManager=null;
++			try {
++			getService = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
++			FpManager=new FingerprintManager(IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService")));
++			}catch(ClassNotFoundException ex){
++			Log.v("fpservice", "ClassNotFoundException");
++			}catch(NoSuchMethodException ex){
++			Log.v("fpservice", "NoSuchMethodException");
++			}catch(IllegalAccessException ex){
++			Log.v("fpservice", "IllegalAccessException");
++			}catch(InvocationTargetException ex){
++			Log.v("fpservice", "InvocationTargetException");
++			}
++		return FpManager;
++	}
++
++    public FingerprintManager(IFingerprintManager service)
++    {
++        mService = service;
++   //     mContext = context;
++    }
++    /*
++     * @Title: query   
++     * @Description: get fingerprint items status 
++     * @param @return
++     * @return int : fingerprint items status,first 16bit is count,next 16bit is the flag
++     * that fingerprint has data or not.
++     * @throws 
++     */
++    public int query()
++    {
++        try
++        {
++            return mService.query();
++        }
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++        return 0;
++    }
++    
++    public void setFFmod(boolean mod)
++    {
++        try
++        {
++            mService.setFFmod(mod);
++        }
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++    }
++    /*
++     * @Title: delete   
++     * @Description: delete fingerprint item.
++     * @param @param i : index of item
++     * @param @return
++     * @return int : error code,like bad param , no permission .
++     * @throws 
++     */
++    public int delete(int i)
++    {
++        try
++        {
++            if(mService == null){
++                try 
++                {
++                    mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++                } 
++                catch(IllegalAccessException e){
++                Log.v("fpservice", "IllegalAccessException");
++                }catch(InvocationTargetException e){
++                Log.v("fpservice", "InvocationTargetException");
++                }
++            }
++            return mService.delete(i);
++        }
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++        catch (NullPointerException eNull){
++            
++        }
++        return 0;
++    }
++    
++    /*
++     * 
++     *  get information about fingerFrint
++     *
++     */
++    public String getInformation() {
++        try
++        {
++            return mService.getInfo();
++        }
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++        return null;
++    }
++	
++    public boolean checkPassword(String psw)
++    {
++        if (null != psw)
++        {
++            return psw.equals("1234");
++        }
++        return false;
++    }
++    
++    public boolean changePassword(String oldPassword,String newPassword)
++    {
++        return true;
++    }
++    
++    /*
++     * @Title: ewVerifySession   
++     * @Description: verify session
++     * @param @param callback
++     * @param @return Verify session object
++     * @return VerifySession 
++     * @throws 
++     */
++    public VerifySession newVerifySession(IVerifyCallback callback)
++    {
++        return new VerifySession(callback);
++    }
++    
++    
++    /*
++     * @Title: newEnrollSession   
++     * @Description: get a new Enroll session object
++     * @param @param callback 
++     * @param @return
++     * @return EnrollSession : Enroll session object
++     * @throws 
++     */
++    public EnrollSession newEnrollSession(IEnrollCallback callback)
++    {
++        return new EnrollSession(callback);
++    }
++    
++    
++
++    /*
++     * <p>Title: FingerprintManager.java</p>
++     * <p>Description: Verify Session</p>
++     */
++    public final class VerifySession {
++        
++        
++        /*
++         * @Fields mToken : session's ID , difference other session.
++         */
++        private IBinder mToken;
++        /*
++         * @Fields mCallback : FingerprintManagerService's message handler.
++         */
++        private IVerifyCallback mCallback;
++        
++        public VerifySession(IVerifyCallback callback) 
++        {
++            Log.v(TAG,"new VerifySession.");
++            mCallback = callback;
++            mToken = new Binder();
++        }
++        
++        
++        /*
++         * @Title: enter   
++         * @Description: session begin
++         * @param @return
++         * @return int errcode.
++         * @throws 
++         */
++        public int enter() {
++            try 
++            {
++                Log.v(TAG,"verify session enter.");
++                return mService.verify(mToken, mCallback);
++            } 
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	        mService.verify(mToken, mCallback);
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}catch (RemoteException e){
++        Log.v("fpservice", "RemoteException");
++        }
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++            return -1;
++        }
++        
++        
++        /*
++         * @Title: exit   
++         * @Description: session exit
++         * @param @return
++         * @return int 
++         * @throws 
++         */
++        public int exit() {
++            try 
++            {
++                Log.v(TAG,"verify session exit.");
++                return mService.cancelVerify(mToken);
++            } 
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++            return -1; 
++        }
++    }
++    
++
++    public final class EnrollSession {
++        private IBinder mToken;
++        private IEnrollCallback mCallback;
++        public EnrollSession(IEnrollCallback callback) 
++        {
++            mCallback = callback;
++            mToken = new Binder();
++        }
++
++        public int enter() {
++            try 
++            {
++                Log.v(TAG,"new enroll session.");
++                return mService.enroll(mToken, mCallback);
++            } 
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	        mService.enroll(mToken, mCallback);
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}catch (RemoteException e){
++        Log.v("fpservice", "RemoteException");
++        }
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++            return -1;
++        }
++
++        public int exit() {
++            try 
++            {
++                Log.v(TAG,"enroll session exit.");
++                return mService.cancelEnroll(mToken);
++            } 
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++            return -1;
++        }
++        
++        public int reset() 
++        {
++            try 
++            {
++                Log.v(TAG,"enroll session reset.");
++                return mService.resetEnroll(mToken);
++            } 
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++            return -1;
++        }
++        
++        public int save(int index)
++        {
++            try
++            {
++                Log.v(TAG,"enroll session save.");
++                return mService.saveEnroll(mToken,index);
++            }
++	catch (DeadObjectException ex)
++	{
++	    Log.v("gxfpservice", "try get new service stub");
++	    try 
++            {
++	        mService=IFingerprintManager.Stub.asInterface((IBinder)getService.invoke(new Object(), "gxFpService"));
++	    } 
++		catch(IllegalAccessException e){
++		Log.v("fpservice", "IllegalAccessException");
++		}catch(InvocationTargetException e){
++		Log.v("fpservice", "InvocationTargetException");
++		}
++	}
++        catch (RemoteException e)
++        {
++            e.printStackTrace();
++        }
++            return -1;
++        }
++    }
++    
++}
+diff --git a/core/java/android/gxFP/IEnrollCallback.aidl b/core/java/android/gxFP/IEnrollCallback.aidl
+new file mode 100644
+index 0000000..17e7bb9
+--- /dev/null
++++ b/core/java/android/gxFP/IEnrollCallback.aidl
+@@ -0,0 +1,6 @@
++package android.gxFP;
++
++oneway interface IEnrollCallback 
++{ 
++    void handleMessage(int msg,int arg0,int arg1,inout byte[] data);
++}
+diff --git a/core/java/android/gxFP/IFingerprintManager.aidl b/core/java/android/gxFP/IFingerprintManager.aidl
+new file mode 100644
+index 0000000..96c08af
+--- /dev/null
++++ b/core/java/android/gxFP/IFingerprintManager.aidl
+@@ -0,0 +1,32 @@
++package android.gxFP;
++
++import android.gxFP.IEnrollCallback;
++import android.gxFP.IVerifyCallback;
++
++interface IFingerprintManager 
++{ 
++void setFFmod(boolean mod);
++	/*recognize*/
++    int verify(IBinder token,IVerifyCallback callback);
++    int cancelVerify(IBinder token);
++    
++    /*register*/
++    int enroll(IBinder token,IEnrollCallback callback);
++    int resetEnroll(IBinder token);
++    int cancelEnroll(IBinder token);
++    int saveEnroll(IBinder token,int index);
++    
++    /* fingerprint data*/
++    int query();
++    int delete(int index);
++    
++    /*password*/
++    // int checkPassword(String password);
++    // int changePassword(String oldPassword,String newPassword);
++    
++    /*engtest such as mode set*/
++   // int EngTest(int cmd);
++    
++    /*get informaton about fingerFrint*/  
++    String getInfo();
++}
+diff --git a/core/java/android/gxFP/IVerifyCallback.aidl b/core/java/android/gxFP/IVerifyCallback.aidl
+new file mode 100644
+index 0000000..f7d6f85
+--- /dev/null
++++ b/core/java/android/gxFP/IVerifyCallback.aidl
+@@ -0,0 +1,6 @@
++package android.gxFP;
++
++oneway interface IVerifyCallback 
++{ 
++	void handleMessage(int msg,int arg0,int arg1,inout byte[] data);
++}
+diff --git a/core/java/android/service/fingerprint/FPFingerManager.java b/core/java/android/service/fingerprint/FPFingerManager.java
+new file mode 100644
+index 0000000..af7a2d5
+--- /dev/null
++++ b/core/java/android/service/fingerprint/FPFingerManager.java
+@@ -0,0 +1,180 @@
++package android.service.fingerprint;
++
++import android.os.Binder;
++import android.os.IBinder;
++import android.os.RemoteException;
++import android.os.ServiceManager;
++public class FPFingerManager {
++	
++	private static FPFingerManager mFPFingerManager;
++	private static IFPFingerService mService;
++	private IBinder mToken;
++	public FPFingerManager(IFPFingerService service) {
++		// TODO Auto-generated constructor stub
++		mService = service;
++		mToken = new Binder();
++	}
++	
++	public static FPFingerManager getFPFingerManager(){
++		IBinder fingerBinder = ServiceManager.getService("FPfingerservice");
++		IFPFingerService service = IFPFingerService.Stub.asInterface(fingerBinder);
++		mFPFingerManager = new FPFingerManager(service);
++		return mFPFingerManager;
++	}
++	
++	public int initBoot(IFPFingerCallback callback){
++		int ret = -1;
++		try {
++			ret = mService.initBoot(mToken, callback);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++		return ret;
++	}
++	
++	public void initDone(){
++		try {
++			mService.initDone(mToken);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++	}
++	
++	public int verify(){
++		int ret = -1;
++		try {
++			ret = mService.verify();
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++		return ret;
++	}
++	
++	public int cancelVerify(){
++		int ret = -1;
++		try {
++			ret = mService.cancelVerify();
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++		return ret;
++	}
++	
++	public int stopVerify(){
++		int ret = -1;
++		try {
++			ret = mService.stopVerify();
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++		return ret;
++	}
++	
++	public void startListener(IFPFingerCallback callback){
++		try {
++			mService.startListener(mToken, callback);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++	}
++	
++	public void stopListener(){
++		try {
++			mService.stopListener(mToken);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++	}
++	
++	public int enroll(int index, IFPEnrollCallback callback){
++		int ret = -1;
++		try {
++			ret = mService.enroll(mToken, index, callback);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++		return ret;
++	}
++	
++	public int cancelEnroll(){
++		int ret = -1;
++		try {
++			ret = mService.cancelEnroll(mToken);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++		return ret;
++	}
++	
++	public int saveEnroll(int index){
++		int ret = -1;
++		try {
++			ret = mService.saveEnroll(mToken, index);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++		return ret;
++	}
++	
++	public int delete(int index){
++		int ret = -1;
++		try {
++			ret = mService.delete(index);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++		return ret;
++	}
++
++	public void interrupt(){
++		try {
++			mService.interrupt();
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++	}
++
++	public void startCapture(IFPCaptureCallback callback){
++		try {
++			mService.startCapture(mToken, callback);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++	}
++
++	public void stopCapture(){
++		try {
++			mService.stopCapture(mToken);
++		} catch (RemoteException e) {
++			// TODO: handle exception
++		} catch (NullPointerException eNull){
++
++		}
++	}
++}
+diff --git a/core/java/android/service/fingerprint/IFPCaptureCallback.aidl b/core/java/android/service/fingerprint/IFPCaptureCallback.aidl
+new file mode 100644
+index 0000000..ef0694e
+--- /dev/null
++++ b/core/java/android/service/fingerprint/IFPCaptureCallback.aidl
+@@ -0,0 +1,5 @@
++package android.service.fingerprint;
++
++interface IFPCaptureCallback{
++	void handleMessage(int score, in byte[] bytes);
++}
+\ No newline at end of file
+diff --git a/core/java/android/service/fingerprint/IFPEnrollCallback.aidl b/core/java/android/service/fingerprint/IFPEnrollCallback.aidl
+new file mode 100644
+index 0000000..5236d13
+--- /dev/null
++++ b/core/java/android/service/fingerprint/IFPEnrollCallback.aidl
+@@ -0,0 +1,5 @@
++package android.service.fingerprint;
++
++interface IFPEnrollCallback{
++	void handleMessage(int index, int what);
++}
+\ No newline at end of file
+diff --git a/core/java/android/service/fingerprint/IFPFingerCallback.aidl b/core/java/android/service/fingerprint/IFPFingerCallback.aidl
+new file mode 100644
+index 0000000..3217352
+--- /dev/null
++++ b/core/java/android/service/fingerprint/IFPFingerCallback.aidl
+@@ -0,0 +1,5 @@
++package android.service.fingerprint;
++
++interface IFPFingerCallback{
++	void handleMessage(int what);
++}
+\ No newline at end of file
+diff --git a/core/java/android/service/fingerprint/IFPFingerService.aidl b/core/java/android/service/fingerprint/IFPFingerService.aidl
+new file mode 100644
+index 0000000..49040f9
+--- /dev/null
++++ b/core/java/android/service/fingerprint/IFPFingerService.aidl
+@@ -0,0 +1,22 @@
++package android.service.fingerprint;
++
++import android.service.fingerprint.IFPFingerCallback;
++import android.service.fingerprint.IFPEnrollCallback;
++import android.service.fingerprint.IFPCaptureCallback;
++interface IFPFingerService{
++	int initBoot(IBinder token, IFPFingerCallback callback);
++	void initDone(IBinder token);
++	int verify();
++	int cancelVerify();
++	int stopVerify();
++	void startListener(IBinder token, IFPFingerCallback callback);
++	void stopListener(IBinder token);
++	
++	int enroll(IBinder token, int index, IFPEnrollCallback callback);
++	int cancelEnroll(IBinder token);
++	int saveEnroll(IBinder token,int index);
++	int delete(int index);
++	void interrupt();
++	void startCapture(IBinder token, IFPCaptureCallback callback);
++	void stopCapture(IBinder token);
++}
+\ No newline at end of file
+diff --git a/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java b/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+index 1ef905f..cea0a5b 100644
+--- a/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
++++ b/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+@@ -140,6 +140,9 @@ import static android.view.WindowManagerPolicy.WindowManagerFuncs.CAMERA_LENS_CO
+ import static android.view.WindowManagerPolicy.WindowManagerFuncs.CAMERA_LENS_UNCOVERED;
+ import static android.view.WindowManagerPolicy.WindowManagerFuncs.CAMERA_LENS_COVERED;
+ 
++//goodix fingerprint
++import android.gxFP.FingerprintManager;
++
+ /**
+  * WindowManagerPolicy implementation for the Android phone UI.  This
+  * introduces a new method suffix, Lp, for an internal lock of the
+@@ -217,6 +220,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+     private static final int KEY_MASK_APP_SWITCH = 0x10;
+     private static final int KEY_MASK_CAMERA = 0x20;
+     private static final int KEY_MASK_VOLUME = 0x40;
++    //goodix fingerprint
++    private FingerprintManager mFingerprintManager;
+ 
+     /**
+      * These are the system UI flags that, when changing, can cause the layout
+@@ -1521,7 +1526,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+         mWindowManagerFuncs = windowManagerFuncs;
+         mWindowManagerInternal = LocalServices.getService(WindowManagerInternal.class);
+         mDreamManagerInternal = LocalServices.getService(DreamManagerInternal.class);
+-
++        //goodix fingerprint
++        if("1".equals(android.os.SystemProperties.get("persist.sys.rengek.fpdaemon", "0"))){
++            SystemProperties.set("sys.goodix.fpdaemon","1");
++        }
+         mHandler = new PolicyHandler();
+         mWakeGestureListener = new MyWakeGestureListener(mContext, mHandler);
+         mOrientationListener = new MyOrientationListener(mContext, mHandler);
+@@ -5622,6 +5630,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+                 break;
+             }
+ 
++            case KeyEvent.KEYCODE_F10:{
++                //goodix fingerprint
++                if(down) {
++                    if (mFingerprintManager == null) {
++                            mFingerprintManager=FingerprintManager.getFpManager();          
++                        }
++                        mFingerprintManager.setFFmod(false);
++                    
++                }
++                break;
++            }
++
+             case KeyEvent.KEYCODE_POWER: {
+                 if (mTopFullscreenOpaqueWindowState != null &&
+                         (mTopFullscreenOpaqueWindowState.getAttrs().privateFlags
+diff --git a/services/core/java/com/android/server/FPFingerService.java b/services/core/java/com/android/server/FPFingerService.java
+new file mode 100644
+index 0000000..a99a50c
+--- /dev/null
++++ b/services/core/java/com/android/server/FPFingerService.java
+@@ -0,0 +1,285 @@
++package com.android.server;
++
++import java.util.Vector;
++
++import android.content.Context;
++import android.content.Intent;
++import android.os.Handler;
++import android.os.HandlerThread;
++import android.os.Looper;
++import android.os.IBinder;
++import android.os.Message;
++import android.os.RemoteException;
++import android.provider.Settings;
++import android.util.Log;
++import android.content.ComponentName;
++import android.app.ActivityManager;
++import android.app.ActivityManager.RunningTaskInfo;
++import android.os.SystemProperties;
++import android.service.fingerprint.IFPFingerService;
++import android.service.fingerprint.IFPFingerCallback;
++import android.service.fingerprint.IFPEnrollCallback;
++import android.service.fingerprint.IFPCaptureCallback;
++import java.util.List;
++import android.content.pm.ActivityInfo;
++import android.content.BroadcastReceiver;
++import android.content.IntentFilter;
++import android.telecom.TelecomManager;
++import java.util.Timer;
++import java.util.TimerTask;
++import android.os.UEventObserver;
++import android.content.ServiceConnection;
++import java.util.ArrayList;
++//goodix fingerprint
++import android.gxFP.FingerprintManager;
++import android.gxFP.IVerifyCallback;
++
++public class FPFingerService extends IFPFingerService.Stub{
++	private static String TAG = "FPFingerService";
++	private Context mContext;
++	private Vector<Client> mClientList = new Vector<Client>();
++	
++	private static final int VERIFY_PASS = 0;
++	private static final int VERIFY_FAIL = 1;
++	private static final int VERIFY_TOUCH = 2;
++	private static final int VERIFY_CAPTURE = 3;
++	private int mFingerIndex = -1;
++	//goodix fingerprint
++	private boolean mGoodixFingerprintEnable = true;
++
++	public FPFingerService(Context context) {
++		mContext = context;
++	}
++
++	@Override
++	public int initBoot(IBinder token, IFPFingerCallback callback) throws RemoteException {
++		if (!isTokenExist(token)) {
++			mClientList.add(new Client(token, Client.TYPE_CALIBRATE, callback));
++		}
++		return 0;
++	}
++
++	@Override
++	public void initDone(IBinder token) throws RemoteException {
++		if (mClientList.size() > 0) {
++			if (mClientList.lastElement().token == token) {
++				mClientList.removeElement(mClientList.lastElement());
++			} else {
++				removeClient(token);
++			}
++		}
++	}
++
++	@Override
++	public void interrupt() throws RemoteException {
++	}
++
++	@Override
++	public int verify() throws RemoteException {
++		if(mGoodixFingerprintEnable){
++			startFingerVerify();
++		}
++		return 0;
++	}
++
++	@Override
++	public int cancelVerify() throws RemoteException {
++		if(mGoodixFingerprintEnable){
++        	if (isFingerServiceRunning){
++				stopfingerverify();
++			}
++		}
++		return 0;
++	}
++
++	@Override
++	public int stopVerify() throws RemoteException {
++		return 0;
++	}
++
++	@Override
++	public void startListener(IBinder token, IFPFingerCallback callback) throws RemoteException {
++		if (!isTokenExist(token)) {
++			mClientList.add(new Client(token, Client.TYPE_VERIFY, callback));
++		}
++	}
++
++	@Override
++	public void stopListener(IBinder token) throws RemoteException {
++		if (mClientList.size() > 0) {
++			if (mClientList.lastElement().token == token) {
++				mClientList.removeElement(mClientList.lastElement());
++			} else {
++				removeClient(token);
++			}
++		}
++	}
++
++	@Override
++	public int enroll(IBinder token, int index, IFPEnrollCallback callback) throws RemoteException {
++		if (!isTokenExist(token)) {
++			mClientList.add(new Client(token, Client.TYPE_ENROLL, callback));
++		}
++		mFingerIndex = index;
++		return 0;
++	}
++
++	@Override
++	public int cancelEnroll(IBinder token) throws RemoteException {
++		return 0;
++	}
++	
++	@Override
++	public int saveEnroll(IBinder token,int index) throws RemoteException {
++		return 0;
++	}
++
++	@Override
++	public int delete(int index) throws RemoteException {
++		return 0;
++	}
++
++	@Override
++	public void startCapture(IBinder token, IFPCaptureCallback callback) throws RemoteException {
++		if (!isTokenExist(token)) {
++			mClientList.add(new Client(token, Client.TYPE_CAPTURE, callback));
++		}
++	}
++
++	@Override
++	public void stopCapture(IBinder token) throws RemoteException {
++		if (mClientList.size() > 0) {
++			if (mClientList.lastElement().token == token) {
++				mClientList.removeElement(mClientList.lastElement());
++			} else {
++				removeClient(token);
++			}
++		}
++	}
++
++	private boolean isTokenExist(IBinder token) {
++		if (!mClientList.isEmpty()) {
++			for (Client client : mClientList) {
++				if (client.token == token) {
++					return true;
++				}
++			}
++		}
++		return false;
++	}
++
++	private boolean removeClient(IBinder token) {
++		if (!mClientList.isEmpty()) {
++			for (Client client : mClientList) {
++				if (client.token == token) {
++					mClientList.remove(client);
++					return true;
++				}
++			}
++		}
++		return false;
++	}
++
++	private class Client {
++		public static final int TYPE_ENROLL = 1;
++		public static final int TYPE_VERIFY = 2;
++		public static final int TYPE_CALIBRATE = 3;
++		public static final int TYPE_CAPTURE = 4;
++		public IBinder token;
++		public int type;
++		public Object callback;
++
++		public Client(IBinder token, int type, Object callback) {
++			this.token = token;
++			this.type = type;
++			this.callback = callback;
++		}
++	}
++
++public void sendMessageToClient(int index, int what, byte[] bytes) {
++		if(index > 0 && mClientList.isEmpty()){
++			// do nothing
++		}else{
++			if(mClientList.isEmpty()){
++				return;
++			}
++			Client client = mClientList.lastElement();
++			try {
++				if(client.type == Client.TYPE_ENROLL){
++					((IFPEnrollCallback) mClientList.lastElement().callback).handleMessage(index, what);
++				}else if (client.type == Client.TYPE_VERIFY) {
++					((IFPFingerCallback) mClientList.lastElement().callback).handleMessage(what);
++				}else if (client.type == Client.TYPE_CALIBRATE) {
++					((IFPFingerCallback) mClientList.lastElement().callback).handleMessage(what);
++				}else if (client.type == Client.TYPE_CAPTURE){
++					((IFPCaptureCallback) mClientList.lastElement().callback).handleMessage(what, bytes);
++				}
++			} catch (RemoteException e) {
++				e.printStackTrace();
++			}
++		}
++	}
++
++	private FingerprintManager.VerifySession mVerifySession = null;
++	private FingerprintManager mFingerprintManager = null;
++	private boolean isFingerServiceRunning = false;
++
++	private void startFingerVerify() {
++		mFingerprintManager = FingerprintManager.getFpManager();
++		mVerifySession = mFingerprintManager.newVerifySession(mVerifyCallback);
++		mVerifySession.enter();
++		isFingerServiceRunning = true;
++	}
++
++	private void stopfingerverify() {
++		Log.d(TAG, "stopfingerverify mVerifySession = " + mVerifySession);
++		if (mVerifySession != null) {
++			mVerifySession.exit();
++			isFingerServiceRunning = false;
++		}
++	}
++
++	private final IVerifyCallback.Stub mVerifyCallback = new IVerifyCallback.Stub() {
++		public void handleMessage(int msg, int arg0, int arg1, byte[] data)
++				throws RemoteException {
++			switch (msg) {
++			case 257:
++				mGoodixFpHandler.sendMessage(mGoodixFpHandler.obtainMessage(1,
++						arg0, arg1));
++				break;
++			case 259:
++				mGoodixFpHandler.sendMessage(mGoodixFpHandler.obtainMessage(2,
++						arg0, arg1));
++				break;
++			case 1:
++	 			mGoodixFpHandler.sendMessage(mGoodixFpHandler.obtainMessage(3,
++						arg0, arg1));
++				break;
++			default:
++				break;
++			}
++
++		}
++	};
++
++	Handler mGoodixFpHandler = new Handler() {
++		public void handleMessage(Message msg) {
++			switch (msg.what) {
++			case 1:
++				Log.d(TAG, "verify success msg.arg2 " + msg.arg2);
++				sendMessageToClient(msg.arg2, VERIFY_PASS, null);
++				break;
++			case 2:
++				Log.d(TAG, "verify fail = %d" + msg);
++				sendMessageToClient(-1, VERIFY_FAIL, null);
++				break;
++			case 3:
++				Log.d(TAG, "touch = %d" + msg);
++				sendMessageToClient(-1, VERIFY_TOUCH, null);
++				break;
++			default:
++				break;
++			}
++		}
++	};
++}
+diff --git a/services/java/com/android/server/SystemServer.java b/services/java/com/android/server/SystemServer.java
+index e8be4df..4d5d754 100644
+--- a/services/java/com/android/server/SystemServer.java
++++ b/services/java/com/android/server/SystemServer.java
+@@ -1391,6 +1391,11 @@ public final class SystemServer {
+ 
+     static final void startSystemUi(Context context) {
+         Intent intent = new Intent();
++        //goodix fingerprint
++		intent.setComponent(new ComponentName("com.goodix.FPservice",
++	                    "com.goodix.service.gxFpService"));
++	        context.startServiceAsUser(intent, UserHandle.OWNER);
++		
+         intent.setComponent(new ComponentName("com.android.systemui",
+                     "com.android.systemui.SystemUIService"));
+         //Slog.d(TAG, "Starting service: " + intent);

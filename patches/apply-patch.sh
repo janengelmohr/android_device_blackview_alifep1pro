@@ -13,6 +13,7 @@ git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0003-locat
 git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0004_minimal_xlog_frameworks_base.patch
 git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0005-Update-for-mtk.patch
 git apply -v ../../device/blackview/alifep1pro/patches/framework_base/0001_engineering_mode_audio_settings_frameworks_base.patch
+git apply -v ../../device/blackview/alifep1pro/patches/framework_base/frameworks_base_goodix_1.patch
 cd ../..
 cd packages/apps/Settings/
 git apply -v ../../../device/blackview/alifep1pro/patches/packages_apps_Settings/0001-multisim.patch
