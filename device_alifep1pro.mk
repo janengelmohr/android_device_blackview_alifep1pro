@@ -21,7 +21,6 @@ PRODUCT_COPY_FILES += \
 	device/blackview/alifep1pro/rootdir/init.mt6735.rc:root/init.mt6735.rc \
 	device/blackview/alifep1pro/rootdir/init.ssd.rc:root/init.ssd.rc \
 	device/blackview/alifep1pro/rootdir/init.xlog.rc:root/init.xlog.rc \
-	device/blackview/alifep1pro/rootdir/init.rc:root/init.rc \
 	device/blackview/alifep1pro/rootdir/init.mt6735.usb.rc:root/init.mt6735.usb.rc \
 	device/blackview/alifep1pro/rootdir/init.project.rc:root/init.project.rc \
 	device/blackview/alifep1pro/rootdir/init.modem.rc:root/init.modem.rc \
@@ -70,6 +69,10 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
         libstlport
+
+# BoringSSL Compat
+PRODUCT_PACKAGES += \
+    libboringssl-compat
 
 # Gralloc
 PRODUCT_PACKAGES += \
