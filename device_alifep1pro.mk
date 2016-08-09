@@ -68,6 +68,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
  	libxlog
 
+PRODUCT_PACKAGES += \
+        libstlport
+
 # Gralloc
 PRODUCT_PACKAGES += \
    	libgralloc_extra
