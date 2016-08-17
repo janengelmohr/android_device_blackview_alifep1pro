@@ -39,3 +39,7 @@ VANZO_FEATURE_FP_GF318M := yes
 
 # EGL settings
 BOARD_EGL_CFG := device/blackview/alifep1pro/configs/egl.cfg
+
+# recovery
+TARGET_RECOVERY_FSTAB := device/blackview/alifep1pro/recovery/root/fstab.mt6735
+TARGET_RECOVERY_LCD_BACKLIGHT_PATH := \"/sys/devices/platform/leds-mt65xx/leds/lcd-backlight/brightness\"
